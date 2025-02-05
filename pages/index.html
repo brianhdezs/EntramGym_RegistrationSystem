@@ -1,101 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Registro de Clientes del Gimnasio</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="/src/css/styles.css" />
-  </head>
-  <body>
+</head>
+<body>
     <div class="container py-5">
-      <h1 class="text-center mb-4 text-primary">Registro de Clientes</h1>
-      <div class="form-container shadow-lg">
-        <form id="clientForm" class="p-4">
-          <div class="mb-3 text-center">
-            <div class="d-flex flex-column align-items-center">
-              <video id="camera" style="display: none" autoplay></video>
-              <canvas id="canvas" style="display: none"></canvas>
-              <img
-                id="photoPreview"
-                class="rounded-circle mb-2"
-                src="/images/profile_img_placeholder.jpg"
-                alt="FotoPerfil"
-              />
-              <button type="button" id="takePhoto" class="btn btn-primary">
-                Abrir Cámara
-              </button>
+        <h1 class="text-center mb-4 text-primary">Registro de Clientes</h1>
+        <div class="form-container shadow-lg">
+            <form id="clientForm" class="p-4">
+                <div class="mb-3 text-center">
+                    <div class="d-flex flex-column align-items-center">
+                        <video id="camera" style="display: none" autoplay></video>
+                        <canvas id="canvas" style="display: none"></canvas>
+                        <img id="photoPreview" class="rounded-circle mb-2" src="/images/profile_img_placeholder.jpg" alt="FotoPerfil" />
+                        <button type="button" id="takePhoto" class="btn btn-primary">Abrir Cámara</button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="clientName" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="clientName" placeholder="Nombre completo" required />
+                </div>
+                <div class="mb-3">
+                    <label for="registrationDate" class="form-label">Fecha de Ingreso</label>
+                    <input type="date" class="form-control" id="registrationDate" required />
+                </div>
+                <div class="mb-3">
+                    <label for="expirationDate" class="form-label">Fecha de Vencimiento</label>
+                    <input type="date" class="form-control" id="expirationDate" required />
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button type="reset" id="clearForm" class="btn btn-light">Limpiar</button>
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Botón para ir a la lista de clientes -->
+    <div class="text-center mt-4">
+      <a href="list.html" class="btn btn-secondary">Ver Lista de Clientes</a>
+  </div>
+</div>
+
+
+    <!-- Toasts -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Cliente registrado con éxito
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-          </div>
-          <div class="mb-3">
-            <label for="clientName" class="form-label">Nombre</label>
-            <input
-              type="text"
-              class="form-control"
-              id="clientName"
-              placeholder="Nombre completo"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="registrationDate" class="form-label"
-              >Fecha de Ingreso</label
-            >
-            <input
-              type="date"
-              class="form-control"
-              id="registrationDate"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="expirationDate" class="form-label"
-              >Fecha de Vencimiento</label
-            >
-            <input
-              type="date"
-              class="form-control"
-              id="expirationDate"
-              required
-            />
-          </div>
-          <div class="d-flex justify-content-between">
-            <button type="reset" id="clearForm" class="btn btn-light">
-              Limpiar
-            </button>
-            <button type="submit" class="btn btn-primary">Registrar</button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
 
-<!-- Toast Notification en la parte superior de la pantalla -->
-<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 start-50 translate-middle-x p-3">
-  <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-          <div class="toast-body text-center">
-              Cliente agregado con éxito.
-          </div>
-          <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-  </div>
-</div>
-<!-- Toast de error -->
-<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 start-50 translate-middle-x p-3">
-  <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="d-flex">
-          <div id="errorToastBody" class="toast-body text-center">
-              Error.
-          </div>
-          <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-  </div>
-</div>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div id="errorToastBody" class="toast-body">
+                    Error al registrar cliente
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/main.js"></script>
-  </body>
+</body>
 </html>

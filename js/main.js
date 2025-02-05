@@ -4,8 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const camera = document.getElementById('camera');
     const canvas = document.getElementById('canvas');
     const clientForm = document.getElementById('clientForm');
-    const successToast = new bootstrap.Toast(document.getElementById('successToast'));
-    const errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
+    const successToast = new bootstrap.Toast(document.getElementById('successToast'), {
+        delay: 3000
+    });
+    const errorToast = new bootstrap.Toast(document.getElementById('errorToast'), {
+        delay: 3000
+    });
     const errorToastBody = document.getElementById('errorToastBody');
 
     let stream = null;
@@ -14,9 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function showErrorToast(message) {
         errorToastBody.textContent = message;
         errorToast.show();
-        setTimeout(() => {
-            errorToast.hide();
-        }, 3000);
     }
 
     async function startCamera() {
@@ -61,24 +62,47 @@ document.addEventListener('DOMContentLoaded', () => {
     async function uploadImage(imageDataUrl, formData) {
         try {
             const blob = await fetch(imageDataUrl).then(res => res.blob());
-            formData.append('photo', blob, "imagen.png");
-
+            
+            // Asegurémonos que los datos están siendo enviados con los nombres correctos
+            formData.delete('photo'); // Limpiamos primero por si acaso
+            formData.append('photo', blob, 'imagen.png');
+            
+            console.log("📤 Datos a enviar:", {
+                clientName: formData.get('clientName'),
+                registrationDate: formData.get('registrationDate'),
+                expirationDate: formData.get('expirationDate'),
+                hasPhoto: formData.has('photo')
+            });
+    
             const response = await fetch('http://localhost:3000/upload', {
                 method: 'POST',
                 body: formData
             });
-
-            const result = await response.json();
-            console.log("✅ Respuesta del servidor:", result);
-
-            if (result.file) {
-                return true;
-            } else {
-                throw new Error("Error al guardar la imagen");
+    
+            // Log de la respuesta completa para debugging
+            const responseText = await response.text();
+            console.log("📥 Respuesta completa del servidor:", responseText);
+    
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (e) {
+                console.error("Error al parsear la respuesta:", e);
+                throw new Error("La respuesta del servidor no es JSON válido");
             }
+    
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${result.message || response.statusText}`);
+            }
+    
+            if (!result.file) {
+                throw new Error("No se recibió confirmación del archivo guardado");
+            }
+    
+            return true;
         } catch (error) {
-            console.error('❌ Error al subir la imagen:', error);
-            throw error;
+            console.error('❌ Error detallado:', error);
+            throw new Error(`Error al subir la imagen: ${error.message}`);
         }
     }
 
@@ -89,6 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
             camera.style.display = 'none';
             takePhotoButton.textContent = 'Abrir Cámara';
             photoTaken = false;
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
         } catch (error) {
             console.error('Error al limpiar el formulario:', error);
             showErrorToast('Hubo un problema al limpiar el formulario.');
@@ -120,15 +149,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             await uploadImage(photoPreview.src, formData);
             
-            console.log('Datos del cliente registrados:', {
+            console.log('Cliente registrado:', {
                 clientName,
                 registrationDate,
                 expirationDate
             });
 
             successToast.show();
-            setTimeout(() => successToast.hide(), 3000);
-            clientForm.reset();
+            
+            // Pequeño delay antes de resetear el formulario
+            setTimeout(() => {
+                clientForm.reset();
+            }, 1000);
+            
         } catch (error) {
             console.error('Error al registrar el cliente:', error);
             showErrorToast('Hubo un problema al registrar el cliente. Inténtalo nuevamente.');
