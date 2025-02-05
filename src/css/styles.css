@@ -31,3 +31,7 @@ input[type="file"] {
 #successToast {
     pointer-events: none;  /* Permite hacer clic a través del toast */
 }
+
+.text-color{
+    color: #000;
+}
