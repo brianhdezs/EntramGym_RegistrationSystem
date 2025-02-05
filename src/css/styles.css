@@ -28,3 +28,6 @@ input[type="file"] {
     padding: 5px;
     margin-bottom: 10px;
 }
+#successToast {
+    pointer-events: none;  /* Permite hacer clic a través del toast */
+}
