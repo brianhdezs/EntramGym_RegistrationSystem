@@ -10,6 +10,7 @@ const uploadDir = path.join(__dirname, 'uploads');
 const clientsFile = path.join(__dirname, 'clients.json');
 
 app.use(cors());
+app.use('/uploads', express.static(uploadDir));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -94,6 +95,37 @@ app.post('/upload', upload.single('photo'), async (req, res) => {
         res.status(500).json({ error: "Error al registrar cliente" });
     }
 });
+
+//ruta para actualizar un cliente
+app.put('/clients/:id', upload.single('photo'), async (req, res) => {
+  try {
+      let clients = await fs.readJson(clientsFile);
+      const clientId = req.params.id;
+      const { clientName, registrationDate, expirationDate } = req.body;
+      const file = req.file;
+
+      let client = clients.find(c => c.id === clientId);
+      if (!client) return res.status(404).json({ error: "Cliente no encontrado" });
+
+      client.name = clientName;
+      client.registrationDate = registrationDate;
+      client.expirationDate = expirationDate;
+
+      // Si se subió una nueva foto, eliminar la anterior y actualizarla
+      if (file) {
+          if (client.photo) {
+              fs.unlinkSync(path.join(uploadDir, client.photo));
+          }
+          client.photo = file.filename;
+      }
+
+      await fs.writeJson(clientsFile, clients);
+      res.json({ success: true });
+  } catch (error) {
+      res.status(500).json({ error: "Error al actualizar cliente" });
+  }
+});
+
 
 // Iniciar servidor
 app.listen(PORT, () => {
