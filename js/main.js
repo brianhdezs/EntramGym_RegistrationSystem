@@ -106,4 +106,33 @@ document.addEventListener('DOMContentLoaded', () => {
             showErrorToast('Hubo un problema al registrar el cliente. Inténtalo nuevamente.');
         }
     });
+    async function uploadImage(imageDataUrl) {
+        try {
+            const blob = await fetch(imageDataUrl).then(res => res.blob());
+            const formData = new FormData();
+    
+            const clientName = document.getElementById('clientName').value.trim();
+            const registrationDate = document.getElementById('registrationDate').value;
+    
+            if (!clientName || !registrationDate) {
+                alert("Nombre y fecha de ingreso son requeridos.");
+                return;
+            }
+    
+            formData.append('photo', blob, `${clientName}_${registrationDate}.png`);
+            formData.append('clientName', clientName);
+            formData.append('registrationDate', registrationDate);
+    
+            const response = await fetch('http://localhost:3000/upload', {
+                method: 'POST',
+                body: formData
+            });
+    
+            const result = await response.json();
+            console.log("Respuesta del servidor:", result);
+            alert('Imagen guardada exitosamente');
+        } catch (error) {
+            console.error('Error al subir la imagen:', error);
+        }
+    }    
 });
